@@ -7,10 +7,11 @@
         <h1>News! <span class="fa fa-rss"></span></h1>
         {% for item in news %}
             {{ include('site/item.html.twig', {
-                title: item.title,
-                text: item.description,
-                link: item.link,
-                img: item.enclosure["@url"] ?? ''
+                title: item.title ?? '',
+                text: item.description ?? '',
+                link: item.link ?? '',
+                img: item.enclosure["@url"] ?? '',
+                date: item.pubDate ?? ''
             }) }}
         {% endfor %}
     </div>

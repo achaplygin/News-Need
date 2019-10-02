@@ -3,15 +3,20 @@
     <h3>{{ title }}</h3>
     <div class="row">
         <div class="col-sm">
-            {{ text|raw }}
+            <br>{{ text|raw }}
             {% if img %}
         </div>
         <div class="col-sm-4">
             <img width="100%" src="{{ img }}">
+            <hr>
+
             {% endif %}
         </div>
         <div class="col-sm-12">
-            <div class="float-right">
+            <div class="d-inline-block">
+                <i>{{ date }}</i>
+            </div>
+            <div class="d-inline-block float-right">
                 <a class="btn btn-secondary" href="{{ link }}" target="_blank">
                     Source <i class="fa fa-external-link"></i>
                 </a>

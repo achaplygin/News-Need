@@ -2,10 +2,11 @@
 
 namespace App\Service;
 
+use App\Entity\NewsPost;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
-class NewsService
+class NewsService implements NewsServiceInterface
 {
     private $source;
     private $category;
@@ -27,7 +28,22 @@ class NewsService
 
     public function parse($data)
     {
-        return $this->encoder->decode($data, '');
+        $items = $this->encoder->decode($data, '');
+        $news = [];
+        // todo: надо разделить на реализации для разных источников
+        foreach ($items['channel']['item'] as $item) {
+            $news[] = new NewsPost([
+                'title' => array_key_exists('title', $item) ? $item['title'] : '',
+                'date' => array_key_exists('pubDate', $item) ? $item['pubDate'] : '',
+                'text' => array_key_exists('description', $item) ? $item['description'] : '',
+                'link' => array_key_exists('link', $item) ? $item['link'] : '',
+                'image' => array_key_exists('enclosure', $item) ? $item['enclosure']['@url'] : '',
+                'source' => $this->source,
+                'category' => $this->category,
+            ]);
+        }
+
+        return $items;
     }
 
     private $links = [
@@ -81,6 +97,7 @@ class NewsService
             'Топ 7' => 'https://lenta.ru/rss/top7',
             'За сутки' => 'https://lenta.ru/rss/last24',
             'Россия' => 'https://lenta.ru/rss/news/russia',
+            'Мир' => 'https://lenta.ru/rss/news/world',
         ],
         /** https://www.vedomosti.ru/info/rss */
         'vedomosti' => [
