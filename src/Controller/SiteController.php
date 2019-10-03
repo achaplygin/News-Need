@@ -23,9 +23,8 @@ class SiteController extends AbstractController
      */
     public function news()
     {
-        $newsService = new NewsService('lenta', 'Мир');
-        $result = $newsService->parse($newsService->receive());
-        $news = $result['channel']['item'];
+        $newsService = new NewsService('https://www.vedomosti.ru/', 'Все материалы');
+        $news = $newsService->parse($newsService->receive());
 
         return $this->render('site/news.html.twig', [
             'controller_name' => 'SiteController',

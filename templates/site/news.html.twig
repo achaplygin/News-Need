@@ -8,10 +8,10 @@
         {% for item in news %}
             {{ include('site/item.html.twig', {
                 title: item.title ?? '',
-                text: item.description ?? '',
+                text: item.text ?? '',
                 link: item.link ?? '',
-                img: item.enclosure["@url"] ?? '',
-                date: item.pubDate ?? ''
+                img: item.image ?? '',
+                date: item.date ?? ''
             }) }}
         {% endfor %}
     </div>

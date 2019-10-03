@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\NewsPost;
+use DateTime;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
@@ -34,8 +35,10 @@ class NewsService implements NewsServiceInterface
         foreach ($items['channel']['item'] as $item) {
             $news[] = new NewsPost([
                 'title' => array_key_exists('title', $item) ? $item['title'] : '',
-                'date' => array_key_exists('pubDate', $item) ? $item['pubDate'] : '',
-                'text' => array_key_exists('description', $item) ? $item['description'] : '',
+                'date' => array_key_exists('pubDate', $item)
+                    ? DateTime::createFromFormat(DateTime::RFC2822, $item['pubDate'])
+                    : '',
+                'text' => $this->getText($item),
                 'link' => array_key_exists('link', $item) ? $item['link'] : '',
                 'image' => array_key_exists('enclosure', $item) ? $item['enclosure']['@url'] : '',
                 'source' => $this->source,
@@ -43,12 +46,21 @@ class NewsService implements NewsServiceInterface
             ]);
         }
 
-        return $items;
+        return $news;
+    }
+
+
+    public function getText(array $data)
+    {
+        $text = array_key_exists('description', $data) ? $data['description'] : '';
+        $text = str_ireplace('src="/', 'src="/' . $this->source, $text);
+        $text = str_ireplace('href="/', 'href="/' . $this->source, $text);
+        return $text;
     }
 
     private $links = [
-        /** https://yandex.ru/news/export */
-        'yandex' => [
+        /* https://yandex.ru/news/export */
+        'https://yandex.ru/' => [
             'Авто' => 'https://news.yandex.ru/auto.rss',
             'Автоспорт' => 'https://news.yandex.ru/auto_racing.rss',
             'Армия и оружие' => 'https://news.yandex.ru/army.rss',
@@ -91,16 +103,16 @@ class NewsService implements NewsServiceInterface
             'Экономика' => 'https://news.yandex.ru/business.rss',
             'Энергетика' => 'https://news.yandex.ru/energy.rss',
         ],
-        /** https://lenta.ru/info/posts/export/ */
-        'lenta' => [
+        /* https://lenta.ru/info/posts/export/ */
+        'https://lenta.ru/' => [
             'Новости' => 'https://lenta.ru/rss/news',
             'Топ 7' => 'https://lenta.ru/rss/top7',
             'За сутки' => 'https://lenta.ru/rss/last24',
             'Россия' => 'https://lenta.ru/rss/news/russia',
             'Мир' => 'https://lenta.ru/rss/news/world',
         ],
-        /** https://www.vedomosti.ru/info/rss */
-        'vedomosti' => [
+        /* https://www.vedomosti.ru/info/rss */
+        'https://www.vedomosti.ru/' => [
             'Все материалы' => 'https://www.vedomosti.ru/rss/articles',
             'Последний номер газеты' => 'https://www.vedomosti.ru/rss/issue',
             'Действующие лица' => 'https://www.vedomosti.ru/rss/library/characters',
