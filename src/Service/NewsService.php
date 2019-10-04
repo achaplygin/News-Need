@@ -22,12 +22,12 @@ class NewsService implements NewsServiceInterface
         $this->encoder = new XmlEncoder();
     }
 
-    public function receive()
+    public function receive(): ?string
     {
         return $this->client->request('GET', $this->links[$this->source][$this->category])->getContent();
     }
 
-    public function parse($data)
+    public function parse($data): array
     {
         $items = $this->encoder->decode($data, '');
         $news = [];
@@ -35,9 +35,7 @@ class NewsService implements NewsServiceInterface
         foreach ($items['channel']['item'] as $item) {
             $news[] = new NewsPost([
                 'title' => array_key_exists('title', $item) ? $item['title'] : '',
-                'date' => array_key_exists('pubDate', $item)
-                    ? DateTime::createFromFormat(DateTime::RFC2822, $item['pubDate'])
-                    : '',
+                'date' => $this->getDate($item),
                 'text' => $this->getText($item),
                 'link' => array_key_exists('link', $item) ? $item['link'] : '',
                 'image' => array_key_exists('enclosure', $item) ? $item['enclosure']['@url'] : '',
@@ -49,12 +47,22 @@ class NewsService implements NewsServiceInterface
         return $news;
     }
 
+    public function getDate(array $data)
+    {
+        return array_key_exists('pubDate', $data)
+            ? DateTime::createFromFormat(DateTime::RFC2822, $data['pubDate'])
+            : null;
+    }
 
     public function getText(array $data)
     {
-        $text = array_key_exists('description', $data) ? $data['description'] : '';
-        $text = str_ireplace('src="/', 'src="/' . $this->source, $text);
-        $text = str_ireplace('href="/', 'href="/' . $this->source, $text);
+        $text = $data['description'] ?? null;
+
+        if ($text !== null) {
+            $text = str_ireplace('src="/', 'src="/' . $this->source, $text);
+            $text = str_ireplace('href="/', 'href="/' . $this->source, $text);
+        }
+
         return $text;
     }
 

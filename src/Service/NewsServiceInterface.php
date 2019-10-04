@@ -6,7 +6,7 @@ namespace App\Service;
 
 interface NewsServiceInterface
 {
-    public function receive();
+    public function receive(): ?string;
 
-    public function parse($data);
+    public function parse($data): array;
 }
