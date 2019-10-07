@@ -17,7 +17,10 @@ class NewsFormType extends AbstractType
 
         $builder
             ->add('source', ChoiceType::class,
-                ['choices' => $newsService->getLinks()]
+                [
+                    'choices' => $newsService->getLinks(),
+                    'placeholder' => 'Select news source'
+                ]
             )
             ->add('submit', SubmitType::class);
     }

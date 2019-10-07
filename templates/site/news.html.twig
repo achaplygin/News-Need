@@ -4,16 +4,22 @@
 
 {% block body %}
     <div class="example-wrapper">
-        <h1 class="d-inline-flex">News Need</h1>
-        {% include('site/_form.html.twig') %}
-        {% for item in news %}
-            {{ include('site/item.html.twig', {
-                title: item.title ?? '',
-                text: item.text ?? '',
-                link: item.link ?? '',
-                img: item.image ?? '',
-                date: item.date ?? ''
-            }) }}
-        {% endfor %}
+        <div class="row">
+            <div class="col-sm-12">
+                <h1 class="d-inline-flex">News Need</h1>
+                {% include('site/_form.html.twig') %}
+            </div>
+        </div>
+        <div>
+            {% for item in news %}
+                {{ include('site/item.html.twig', {
+                    title: item.title ?? '',
+                    text: item.text ?? '',
+                    link: item.link ?? '',
+                    img: item.image ?? '',
+                    date: item.date ?? ''
+                }) }}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
