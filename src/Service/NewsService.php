@@ -9,22 +9,23 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 class NewsService implements NewsServiceInterface
 {
+    /** @var \Symfony\Contracts\HttpClient\string */
     private $source;
-    private $category;
+    /** @var HttpClient */
     private $client;
+    /** @var XmlEncoder */
     private $encoder;
 
-    public function __construct($source, $category)
+    public function __construct($source)
     {
         $this->source = $source;
-        $this->category = $category;
         $this->client = HttpClient::create();
         $this->encoder = new XmlEncoder();
     }
 
     public function receive(): ?string
     {
-        return $this->client->request('GET', $this->links[$this->source][$this->category])->getContent();
+        return $this->client->request('GET', $this->source)->getContent();
     }
 
     public function parse($data): array
@@ -40,7 +41,6 @@ class NewsService implements NewsServiceInterface
                 'link' => array_key_exists('link', $item) ? $item['link'] : '',
                 'image' => array_key_exists('enclosure', $item) ? $item['enclosure']['@url'] : '',
                 'source' => $this->source,
-                'category' => $this->category,
             ]);
         }
 
@@ -67,8 +67,16 @@ class NewsService implements NewsServiceInterface
     }
 
     private $links = [
+        /* https://lenta.ru/info/posts/export/ */
+        'Lenta.ru' => [
+            'Новости' => 'https://lenta.ru/rss/news',
+            'Топ 7' => 'https://lenta.ru/rss/top7',
+            'За сутки' => 'https://lenta.ru/rss/last24',
+            'Россия' => 'https://lenta.ru/rss/news/russia',
+            'Мир' => 'https://lenta.ru/rss/news/world',
+        ],
         /* https://yandex.ru/news/export */
-        'https://yandex.ru/' => [
+        'Yandex News' => [
             'Авто' => 'https://news.yandex.ru/auto.rss',
             'Автоспорт' => 'https://news.yandex.ru/auto_racing.rss',
             'Армия и оружие' => 'https://news.yandex.ru/army.rss',
@@ -111,101 +119,78 @@ class NewsService implements NewsServiceInterface
             'Экономика' => 'https://news.yandex.ru/business.rss',
             'Энергетика' => 'https://news.yandex.ru/energy.rss',
         ],
-        /* https://lenta.ru/info/posts/export/ */
-        'https://lenta.ru/' => [
-            'Новости' => 'https://lenta.ru/rss/news',
-            'Топ 7' => 'https://lenta.ru/rss/top7',
-            'За сутки' => 'https://lenta.ru/rss/last24',
-            'Россия' => 'https://lenta.ru/rss/news/russia',
-            'Мир' => 'https://lenta.ru/rss/news/world',
-        ],
         /* https://www.vedomosti.ru/info/rss */
-        'https://www.vedomosti.ru/' => [
+        'Vedomosti' => [
             'Все материалы' => 'https://www.vedomosti.ru/rss/articles',
             'Последний номер газеты' => 'https://www.vedomosti.ru/rss/issue',
             'Действующие лица' => 'https://www.vedomosti.ru/rss/library/characters',
             'Расследования' => 'https://www.vedomosti.ru/rss/library/investigations',
-            'Бизнес' => [
-                'Бизнес' => 'https://www.vedomosti.ru/rss/rubric/business',
-                'ТЭК' => 'https://www.vedomosti.ru/rss/rubric/business/energy',
-                'Промышленность' => 'https://www.vedomosti.ru/rss/rubric/business/industry',
-                'Транспорт' => 'https://www.vedomosti.ru/rss/rubric/business/transport',
-                'Агропром' => 'https://www.vedomosti.ru/rss/rubric/business/agriculture',
-                'Торговля и услуги' => 'https://www.vedomosti.ru/rss/rubric/business/retail',
-                'Спортивный бизнес' => 'https://www.vedomosti.ru/rss/rubric/business/sport',
-            ],
-            'Экономика' => [
-                'Экономика' => 'https://www.vedomosti.ru/rss/rubric/economics',
-                'Макроэкономика и бюджет' => 'https://www.vedomosti.ru/rss/rubric/economics/macro',
-                'Госинвестиции и проекты' => 'https://www.vedomosti.ru/rss/rubric/economics/state_investments',
-                'Мировая экономика' => 'https://www.vedomosti.ru/rss/rubric/economics/global',
-                'Налоги и сборы' => 'https://www.vedomosti.ru/rss/rubric/economics/taxes',
-                'Правила' => 'https://www.vedomosti.ru/rss/rubric/economics/regulations',
-            ],
-            'Финансы' => [
-                'Финансы' => 'https://www.vedomosti.ru/rss/rubric/finance',
-                'Банки' => 'https://www.vedomosti.ru/rss/rubric/finance/banks',
-                'Рынки' => 'https://www.vedomosti.ru/rss/rubric/finance/markets',
-                'Профучастники' => 'https://www.vedomosti.ru/rss/rubric/finance/players',
-                'Страхование' => 'https://www.vedomosti.ru/rss/rubric/finance/insurance',
-                'Персональные финансы' => 'https://www.vedomosti.ru/rss/rubric/finance/personal_finance',
-            ],
-            'Мнения' => [
-                'Мнения' => 'https://www.vedomosti.ru/rss/rubric/opinion',
-                'Детали' => 'https://www.vedomosti.ru/rss/rubric/opinion/details',
-                'Аналитика' => 'https://www.vedomosti.ru/rss/rubric/opinion/analytics',
-                'От редакции' => 'https://www.vedomosti.ru/rss/rubric/opinion/editorial',
-            ],
-            'Политика' => [
-                'Политика' => 'https://www.vedomosti.ru/rss/rubric/politics',
-                'Власть' => 'https://www.vedomosti.ru/rss/rubric/politics/official',
-                'Демократия' => 'https://www.vedomosti.ru/rss/rubric/politics/democracy',
-                'Международные отношения' => 'https://www.vedomosti.ru/rss/rubric/politics/international',
-                'Безопасность и право' => 'https://www.vedomosti.ru/rss/rubric/politics/security_law',
-                'Социальная политика' => 'https://www.vedomosti.ru/rss/rubric/politics/social',
-                'Международная жизнь' => 'https://www.vedomosti.ru/rss/rubric/politics/foreign',
-            ],
-            'Технологии' => [
-                'Технологии' => 'https://www.vedomosti.ru/rss/rubric/technology',
-                'Телекоммуникации' => 'https://www.vedomosti.ru/rss/rubric/technology/telecom',
-                'Интернет и digital' => 'https://www.vedomosti.ru/rss/rubric/technology/internet',
-                'Медиа' => 'https://www.vedomosti.ru/rss/rubric/technology/media',
-                'ИТ-бизнес' => 'https://www.vedomosti.ru/rss/rubric/technology/it_business',
-                'Персональные технологии' => 'https://www.vedomosti.ru/rss/rubric/technology/personal_technologies',
-                'Наукоемкие технологии' => 'https://www.vedomosti.ru/rss/rubric/technology/hi_tech',
-                'Недвижимость' => [
-                    'Недвижимость' => 'https://www.vedomosti.ru/rss/rubric/realty',
-                    'Жилая недвижимость' => 'https://www.vedomosti.ru/rss/rubric/realty/housing',
-                    'Коммерческая недвижимость' => 'https://www.vedomosti.ru/rss/rubric/realty/commercial_property',
-                    'Стройки и инфраструктура' => 'https://www.vedomosti.ru/rss/rubric/realty/infrastructure',
-                    'Архитектура и дизайн' => 'https://www.vedomosti.ru/rss/rubric/realty/architecture',
-                    'Место для жизни' => 'https://www.vedomosti.ru/rss/rubric/realty/districts',
-                ],
-                'Авто' => [
-                    'Авто' => 'https://www.vedomosti.ru/rss/rubric/auto',
-                    'Автомобильная промышленность' => 'https://www.vedomosti.ru/rss/rubric/auto/auto_industry',
-                    'Легковые автомобили' => 'https://www.vedomosti.ru/rss/rubric/auto/cars',
-                    'Коммерческие автомобили' => 'https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles',
-                    'Дизайн и технологии' => 'https://www.vedomosti.ru/rss/rubric/auto/car_design',
-                    'Тест-драйвы' => 'https://www.vedomosti.ru/rss/rubric/auto/test_drive',
-                ],
-                'Менеджмент' => [
-                    'Менеджмент' => 'https://www.vedomosti.ru/rss/rubric/management',
-                    'Карьера' => 'https://www.vedomosti.ru/rss/rubric/management/career',
-                    'Управление' => 'https://www.vedomosti.ru/rss/rubric/management/management',
-                    'Зарплаты и занятость' => 'https://www.vedomosti.ru/rss/rubric/management/compensation',
-                    'Предпринимательство' => 'https://www.vedomosti.ru/rss/rubric/management/entrepreneurship',
-                    'Бизнес-образование' => 'https://www.vedomosti.ru/rss/rubric/management/education',
-                ],
-                'Стиль жизни' => [
-                    'Стиль жизни' => 'https://www.vedomosti.ru/rss/rubric/lifestyle',
-                    'Досуг' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/leisure',
-                    'Культура' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/culture',
-                    'Люкс' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/luxury',
-                    'Интервью' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/interview',
-                    'Линии жизни' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/lifeline',
-                ],
-            ]
+            'Бизнес' => 'https://www.vedomosti.ru/rss/rubric/business',
+            'Бизнес-ТЭК' => 'https://www.vedomosti.ru/rss/rubric/business/energy',
+            'Бизнес-Промышленность' => 'https://www.vedomosti.ru/rss/rubric/business/industry',
+            'Бизнес-Транспорт' => 'https://www.vedomosti.ru/rss/rubric/business/transport',
+            'Бизнес-Агропром' => 'https://www.vedomosti.ru/rss/rubric/business/agriculture',
+            'Бизнес-Торговля и услуги' => 'https://www.vedomosti.ru/rss/rubric/business/retail',
+            'Бизнес-Спортивный бизнес' => 'https://www.vedomosti.ru/rss/rubric/business/sport',
+            'Экономика' => 'https://www.vedomosti.ru/rss/rubric/economics',
+            'Экономика-Макроэкономика и бюджет' => 'https://www.vedomosti.ru/rss/rubric/economics/macro',
+            'Экономика-Госинвестиции и проекты' => 'https://www.vedomosti.ru/rss/rubric/economics/state_investments',
+            'Экономика-Мировая экономика' => 'https://www.vedomosti.ru/rss/rubric/economics/global',
+            'Экономика-Налоги и сборы' => 'https://www.vedomosti.ru/rss/rubric/economics/taxes',
+            'Экономика-Правила' => 'https://www.vedomosti.ru/rss/rubric/economics/regulations',
+            'Финансы' => 'https://www.vedomosti.ru/rss/rubric/finance',
+            'Финансы-Банки' => 'https://www.vedomosti.ru/rss/rubric/finance/banks',
+            'Финансы-Рынки' => 'https://www.vedomosti.ru/rss/rubric/finance/markets',
+            'Финансы-Профучастники' => 'https://www.vedomosti.ru/rss/rubric/finance/players',
+            'Финансы-Страхование' => 'https://www.vedomosti.ru/rss/rubric/finance/insurance',
+            'Финансы-Персональные финансы' => 'https://www.vedomosti.ru/rss/rubric/finance/personal_finance',
+            'Мнения' => 'https://www.vedomosti.ru/rss/rubric/opinion',
+            'Мнения-Детали' => 'https://www.vedomosti.ru/rss/rubric/opinion/details',
+            'Мнения-Аналитика' => 'https://www.vedomosti.ru/rss/rubric/opinion/analytics',
+            'Мнения-От редакции' => 'https://www.vedomosti.ru/rss/rubric/opinion/editorial',
+            'Политика' => 'https://www.vedomosti.ru/rss/rubric/politics',
+            'Политика-Власть' => 'https://www.vedomosti.ru/rss/rubric/politics/official',
+            'Политика-Демократия' => 'https://www.vedomosti.ru/rss/rubric/politics/democracy',
+            'Политика-Международные отношения' => 'https://www.vedomosti.ru/rss/rubric/politics/international',
+            'Политика-Безопасность и право' => 'https://www.vedomosti.ru/rss/rubric/politics/security_law',
+            'Политика-Социальная политика' => 'https://www.vedomosti.ru/rss/rubric/politics/social',
+            'Политика-Международная жизнь' => 'https://www.vedomosti.ru/rss/rubric/politics/foreign',
+            'Технологии' => 'https://www.vedomosti.ru/rss/rubric/technology',
+            'Технологии-Телекоммуникации' => 'https://www.vedomosti.ru/rss/rubric/technology/telecom',
+            'Технологии-Интернет и digital' => 'https://www.vedomosti.ru/rss/rubric/technology/internet',
+            'Технологии-Медиа' => 'https://www.vedomosti.ru/rss/rubric/technology/media',
+            'Технологии-ИТ-бизнес' => 'https://www.vedomosti.ru/rss/rubric/technology/it_business',
+            'Технологии-Персональные технологии' => 'https://www.vedomosti.ru/rss/rubric/technology/personal_technologies',
+            'Технологии-Наукоемкие технологии' => 'https://www.vedomosti.ru/rss/rubric/technology/hi_tech',
+            'Недвижимость' => 'https://www.vedomosti.ru/rss/rubric/realty',
+            'Недвижимость-Жилая недвижимость' => 'https://www.vedomosti.ru/rss/rubric/realty/housing',
+            'Недвижимость-Коммерческая недвижимость' => 'https://www.vedomosti.ru/rss/rubric/realty/commercial_property',
+            'Недвижимость-Стройки и инфраструктура' => 'https://www.vedomosti.ru/rss/rubric/realty/infrastructure',
+            'Недвижимость-Архитектура и дизайн' => 'https://www.vedomosti.ru/rss/rubric/realty/architecture',
+            'Недвижимость-Место для жизни' => 'https://www.vedomosti.ru/rss/rubric/realty/districts',
+            'Авто' => 'https://www.vedomosti.ru/rss/rubric/auto',
+            'Авто-Автомобильная промышленность' => 'https://www.vedomosti.ru/rss/rubric/auto/auto_industry',
+            'Авто-Легковые автомобили' => 'https://www.vedomosti.ru/rss/rubric/auto/cars',
+            'Авто-Коммерческие автомобили' => 'https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles',
+            'Авто-Дизайн и технологии' => 'https://www.vedomosti.ru/rss/rubric/auto/car_design',
+            'Авто-Тест-драйвы' => 'https://www.vedomosti.ru/rss/rubric/auto/test_drive',
+            'Менеджмент' => 'https://www.vedomosti.ru/rss/rubric/management',
+            'Менеджмент-Карьера' => 'https://www.vedomosti.ru/rss/rubric/management/career',
+            'Менеджмент-Управление' => 'https://www.vedomosti.ru/rss/rubric/management/management',
+            'Менеджмент-Зарплаты и занятость' => 'https://www.vedomosti.ru/rss/rubric/management/compensation',
+            'Менеджмент-Предпринимательство' => 'https://www.vedomosti.ru/rss/rubric/management/entrepreneurship',
+            'Менеджмент-Бизнес-образование' => 'https://www.vedomosti.ru/rss/rubric/management/education',
+            'Стиль жизни' => 'https://www.vedomosti.ru/rss/rubric/lifestyle',
+            'Стиль жизни-Досуг' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/leisure',
+            'Стиль жизни-Культура' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/culture',
+            'Стиль жизни-Люкс' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/luxury',
+            'Стиль жизни-Интервью' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/interview',
+            'Стиль жизни-Линии жизни' => 'https://www.vedomosti.ru/rss/rubric/lifestyle/lifeline',
         ],
     ];
+
+    public function getLinks()
+    {
+        return $this->links;
+    }
 }

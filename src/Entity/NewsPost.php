@@ -42,11 +42,6 @@ class NewsPost
      */
     private $source;
 
-    /**
-     * @var string
-     */
-    private $category;
-
     public function __construct($attributes = [])
     {
         foreach ($attributes as $attribute => $value) {
@@ -105,18 +100,6 @@ class NewsPost
     public function setLink(?string $link): self
     {
         $this->link = $link;
-
-        return $this;
-    }
-
-    public function getCategory(): ?string
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?string $category): self
-    {
-        $this->category = $category;
 
         return $this;
     }

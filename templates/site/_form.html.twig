@@ -1,0 +1,12 @@
+<div class="d-inline-flex  align-middle mb-2 ml-3">
+    {{ form_start(form) }}
+    <div class="d-inline-flex">
+        {{ form_label(form.source, 'Source', {label_attr: {class: 'input-custom m-1'} } ) }}
+        {{ form_widget(form.source, {attr: {class: 'custom-select'} } ) }}
+    </div>
+    <div class="d-inline-flex">
+        {{ form_row(form.submit, {attr: {class: 'btn btn-info m-1'}, label: 'Load' } ) }}
+        <a href="/" class="btn btn-secondary m-1">Reset</a>
+    </div>
+    {{ form_end(form) }}
+</div>
