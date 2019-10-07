@@ -5,7 +5,13 @@ namespace App\Service;
 use App\Entity\NewsPost;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 abstract class NewsService implements NewsServiceInterface
 {
@@ -35,6 +41,10 @@ abstract class NewsService implements NewsServiceInterface
         throw new NotFoundHttpException();
     }
 
+    /**
+     * NewsService constructor.
+     * @param $source
+     */
     protected function __construct($source)
     {
         $this->source = $source;
@@ -42,11 +52,22 @@ abstract class NewsService implements NewsServiceInterface
         $this->encoder = new XmlEncoder();
     }
 
+    /**
+     * @return string|null
+     */
     public function receive(): ?string
     {
-        return $this->client->request('GET', $this->source)->getContent();
+        try {
+            return $this->client->request('GET', $this->source)->getContent();
+        } catch (ExceptionInterface $e) {
+            throw new ResourceNotFoundException('Unable to load data from external source');
+        }
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function parse($data): array
     {
         $items = $this->encoder->decode($data, '');
@@ -65,6 +86,9 @@ abstract class NewsService implements NewsServiceInterface
         return $news;
     }
 
+    /**
+     * @var array
+     */
     private static $links = [
         /* https://lenta.ru/info/posts/export/ */
         'Lenta.ru' => [
@@ -188,7 +212,10 @@ abstract class NewsService implements NewsServiceInterface
         ],
     ];
 
-    public function getLinks()
+    /**
+     * @return array
+     */
+    public static function getLinks(): array
     {
         return self::$links;
     }

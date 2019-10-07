@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * Class SiteController
+ * @package App\Controller
+ */
 class SiteController extends AbstractController
 {
     /**
@@ -35,13 +39,16 @@ class SiteController extends AbstractController
     }
 
     /**
-     * @Route("/news", name="news")
+     * @Route("/news/{page<\d+>?1}", name="news")
      * @param Request $request
+     * @param int $page
      * @return Response|null
      */
-    public function news(Request $request): ?Response
+    public function news(Request $request, int $page = 1): ?Response
     {
-        $source = $request->query->get('source');
+        if (!$source = $request->query->get('source')) {
+            return $this->redirectToRoute('site');
+        }
 
         $newsForm = new NewsForm();
         $newsForm->setSource($source);
@@ -55,11 +62,20 @@ class SiteController extends AbstractController
         }
 
         $newsService = NewsService::createService($source);
-        $news = $newsService->parse($newsService->receive());
+        $allNews = $newsService->parse($newsService->receive());
+
+        $news = [];
+        $pageSize = 5;
+        $page = ($page < count($allNews) / $pageSize) ? $page : 1;
+        for ($i = ($page - 1) * $pageSize; ($i < $pageSize * $page) && ($i < count($allNews)); $i++) {
+            $news[] = $allNews[$i];
+        }
 
         return $this->render('site/news.html.twig', [
             'form' => $form->createView(),
             'news' => $news,
+            'page' => $page,
+            'maxPage' => count($allNews) / $pageSize,
         ]);
     }
 }

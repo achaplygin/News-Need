@@ -21,5 +21,24 @@
                 }) }}
             {% endfor %}
         </div>
+        <hr>
+        <div class="row align-content-sm-stretch row">
+            <div class="col-sm">
+                {% if page > 1 %}
+                    <a href="/news/{{ page-1 }}?{{ app.request.queryString }}" class="btn btn-info">
+                        Prev Page
+                    </a>
+                {% endif %}
+            </div>
+            <span class="btn alert-dark">Page:&nbsp;{{ page }}</span>
+            <div class="col-sm">
+                {% if page < maxPage %}
+                    <a href="/news/{{ page+1 }}?{{ app.request.queryString }}" class="btn btn-info pull-right">
+                        Next Page
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
     </div>
 {% endblock %}
