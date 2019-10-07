@@ -3,20 +3,39 @@
 namespace App\Service;
 
 use App\Entity\NewsPost;
-use DateTime;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
-class NewsService implements NewsServiceInterface
+abstract class NewsService implements NewsServiceInterface
 {
     /** @var \Symfony\Contracts\HttpClient\string */
-    private $source;
+    protected $source;
     /** @var HttpClient */
-    private $client;
+    protected $client;
     /** @var XmlEncoder */
-    private $encoder;
+    protected $encoder;
 
-    public function __construct($source)
+    /**
+     * @param $link
+     * @return NewsService
+     */
+    public static function createService($link): NewsService
+    {
+        if (in_array($link, self::$links['Lenta.ru'], true)) {
+            return new LentaNewsService($link);
+        }
+        if (in_array($link, self::$links['Yandex News'], true)) {
+            return new YandexNewsService($link);
+        }
+        if (in_array($link, self::$links['Vedomosti'], true)) {
+            return new VedomostiNewsService($link);
+        }
+
+        throw new NotFoundHttpException();
+    }
+
+    protected function __construct($source)
     {
         $this->source = $source;
         $this->client = HttpClient::create();
@@ -32,10 +51,9 @@ class NewsService implements NewsServiceInterface
     {
         $items = $this->encoder->decode($data, '');
         $news = [];
-        // todo: надо разделить на реализации для разных источников
         foreach ($items['channel']['item'] as $item) {
             $news[] = new NewsPost([
-                'title' => array_key_exists('title', $item) ? $item['title'] : '',
+                'title' => $this->getTitle($item),
                 'date' => $this->getDate($item),
                 'text' => $this->getText($item),
                 'link' => array_key_exists('link', $item) ? $item['link'] : '',
@@ -47,26 +65,7 @@ class NewsService implements NewsServiceInterface
         return $news;
     }
 
-    public function getDate(array $data)
-    {
-        return array_key_exists('pubDate', $data)
-            ? DateTime::createFromFormat(DateTime::RFC2822, $data['pubDate'])
-            : null;
-    }
-
-    public function getText(array $data)
-    {
-        $text = $data['description'] ?? null;
-
-        if ($text !== null) {
-            $text = str_ireplace('src="/', 'src="/' . $this->source, $text);
-            $text = str_ireplace('href="/', 'href="/' . $this->source, $text);
-        }
-
-        return $text;
-    }
-
-    private $links = [
+    private static $links = [
         /* https://lenta.ru/info/posts/export/ */
         'Lenta.ru' => [
             'Новости' => 'https://lenta.ru/rss/news',
@@ -191,6 +190,6 @@ class NewsService implements NewsServiceInterface
 
     public function getLinks()
     {
-        return $this->links;
+        return self::$links;
     }
 }

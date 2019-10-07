@@ -54,7 +54,7 @@ class SiteController extends AbstractController
             ]);
         }
 
-        $newsService = new NewsService($source);
+        $newsService = NewsService::createService($source);
         $news = $newsService->parse($newsService->receive());
 
         return $this->render('site/news.html.twig', [
