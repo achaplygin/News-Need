@@ -27,7 +27,6 @@ class SiteController extends AbstractController
         $form = $this->createForm(NewsFormType::class, $newsForm);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $newsForm = $form->getData();
             return $this->redirectToRoute('news', [
                 'source' => $newsForm->getSource(),
             ]);
@@ -55,7 +54,6 @@ class SiteController extends AbstractController
         $form = $this->createForm(NewsFormType::class, $newsForm);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $newsForm = $form->getData();
             return $this->redirectToRoute('news', [
                 'source' => $newsForm->getSource(),
             ]);
