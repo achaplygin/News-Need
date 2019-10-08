@@ -47,3 +47,7 @@ This application can receive news from external sites and display them in a mini
 To receive news, you should select one of the sources from the drop-down list and click "Load".
 ---
 
+The application code structure is in the src directory.
+There is one controller, one entity that is used as a Data Transfer Object, and one form for receiving requests from the user.
+The main logic in the services. Here is realized ServiceFactory, generating instances of specific NewsServices depending on the parameters received from the form.
+Each of NewsServices extends common abstract Service which implements NewsInterface. 
