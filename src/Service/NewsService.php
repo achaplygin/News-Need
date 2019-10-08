@@ -8,6 +8,10 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * Class NewsService
+ * @package App\Service
+ */
 abstract class NewsService implements NewsServiceInterface
 {
     /** @var string */

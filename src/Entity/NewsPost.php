@@ -6,6 +6,7 @@ use DateTimeInterface;
 
 /**
  * Class NewsPost
+ * It's used as DTO
  * @package App\Entity
  */
 class NewsPost

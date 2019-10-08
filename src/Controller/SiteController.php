@@ -56,7 +56,7 @@ class SiteController extends AbstractController
         if (!$source = $request->query->get('source')) {
             return $this->redirectToRoute('site');
         }
-
+        // prepare and load Form
         $newsForm = new NewsForm();
         $newsForm->setSource($source);
         $form = $this->createForm(NewsFormType::class, $newsForm);
@@ -67,9 +67,12 @@ class SiteController extends AbstractController
             ]);
         }
 
+        //Prepare NewsService
         $newsService = $this->newsServiceFactory->create($source);
+        //Receive and parse news
         $allNews = $newsService->parse($newsService->receive());
 
+        // pagination
         $news = [];
         $pageSize = 5;
         $page = ($page < count($allNews) / $pageSize) ? $page : 1;

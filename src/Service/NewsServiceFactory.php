@@ -6,6 +6,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * Class NewsServiceFactory
+ * @package App\Service
+ */
 class NewsServiceFactory
 {
     /** @var HttpClientInterface */
@@ -14,12 +18,21 @@ class NewsServiceFactory
     /** @var DecoderInterface */
     private $encoder;
 
+    /**
+     * NewsServiceFactory constructor.
+     * @param HttpClientInterface $client
+     * @param DecoderInterface $encoder
+     */
     public function __construct(HttpClientInterface $client, DecoderInterface $encoder)
     {
         $this->client = $client;
         $this->encoder = $encoder;
     }
 
+    /**
+     * @param string $link
+     * @return NewsServiceInterface
+     */
     public function create(string $link): NewsServiceInterface
     {
         if (in_array($link, LentaNewsService::LINKS, true)) {

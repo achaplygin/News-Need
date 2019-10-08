@@ -10,6 +10,10 @@ use DateTime;
  */
 class VedomostiNewsService extends NewsService
 {
+    /**
+     * @param array $data
+     * @return bool|DateTime|null
+     */
     public function getDate(array $data)
     {
         return array_key_exists('pubDate', $data)
@@ -17,11 +21,19 @@ class VedomostiNewsService extends NewsService
             : null;
     }
 
+    /**
+     * @param array $data
+     * @return mixed|null
+     */
     public function getText(array $data)
     {
         return $data['description'] ?? null;
     }
 
+    /**
+     * @param array $data
+     * @return string|null
+     */
     public function getTitle(array $data)
     {
         $ico = '<img src="https://www.google.com/s2/favicons?domain=www.vedomosti.ru">';
