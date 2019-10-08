@@ -1,5 +1,6 @@
 Requirements
----  
+---
+
 * PHP 7.1 or higher;
 * PHP extensions: Ctype, iconv, JSON, PCRE, Session, SimpleXML, and Tokenizer;
 * Composer;
@@ -7,6 +8,7 @@ Requirements
 
  Installation
  ---
+ 
  * Clone project from GitHub;
  * Execute `composer install` in project directory;
  * Configure your web-server;
@@ -42,9 +44,11 @@ Requirements
     }
     ```
  About
- ---
+---
+
 This application can receive news from external sites and display them in a minimalistic way.
 To receive news, you should select one of the sources from the drop-down list and click "Load".
+
 ---
 
 The application code structure is in the src directory.
