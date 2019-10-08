@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Form\NewsForm;
 use App\Form\NewsFormType;
-use App\Service\NewsService;
+use App\Service\NewsServiceFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +16,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SiteController extends AbstractController
 {
+    /** @var NewsServiceFactory */
+    private $newsServiceFactory;
+
+    public function __construct(NewsServiceFactory $newsServiceFactory)
+    {
+        $this->newsServiceFactory = $newsServiceFactory;
+    }
+
     /**
      * @Route("/", name="site")
      * @param Request $request
@@ -59,7 +67,7 @@ class SiteController extends AbstractController
             ]);
         }
 
-        $newsService = NewsService::createService($source);
+        $newsService = $this->newsServiceFactory->create($source);
         $allNews = $newsService->parse($newsService->receive());
 
         $news = [];

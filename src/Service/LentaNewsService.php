@@ -11,11 +11,6 @@ use DateTime;
  */
 class LentaNewsService extends NewsService
 {
-    public function __construct($source)
-    {
-        parent::__construct($source);
-    }
-
     public function getDate(array $data)
     {
         return array_key_exists('pubDate', $data)
@@ -33,4 +28,12 @@ class LentaNewsService extends NewsService
         $ico = '<img src="https://www.google.com/s2/favicons?domain=lenta.ru">';
         return $ico . '&nbsp;' . $data['title'] ?? null;
     }
+
+    public const LINKS  = [
+        'Новости' => 'https://lenta.ru/rss/news',
+        'Топ 7' => 'https://lenta.ru/rss/top7',
+        'За сутки' => 'https://lenta.ru/rss/last24',
+        'Россия' => 'https://lenta.ru/rss/news/russia',
+        'Мир' => 'https://lenta.ru/rss/news/world',
+    ];
 }
