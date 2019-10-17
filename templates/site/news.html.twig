@@ -3,7 +3,7 @@
 {% block title %}News Need{% endblock %}
 
 {% block body %}
-    <div class="example-wrapper">
+    <div class="wrapper">
         <div class="row">
             <div class="col-sm-12">
                 <h1 class="d-inline-flex">News Need</h1>
@@ -11,7 +11,7 @@
             </div>
         </div>
         <div>
-            {% for item in news %}
+            {% for item in pagination %}
                 {{ include('site/item.html.twig', {
                     title: item.title ?? '',
                     text: item.text ?? '',
@@ -22,22 +22,8 @@
             {% endfor %}
         </div>
         <hr>
-        <div class="row align-content-sm-stretch row">
-            <div class="col-sm">
-                {% if page > 1 %}
-                    <a href="/news/{{ page-1 }}?{{ app.request.queryString }}" class="btn btn-info">
-                        Prev Page
-                    </a>
-                {% endif %}
-            </div>
-            <span class="btn alert-dark">Page:&nbsp;{{ page }}</span>
-            <div class="col-sm">
-                {% if page < maxPage %}
-                    <a href="/news/{{ page+1 }}?{{ app.request.queryString }}" class="btn btn-info pull-right">
-                        Next Page
-                    </a>
-                {% endif %}
-            </div>
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
         </div>
     </div>
     </div>

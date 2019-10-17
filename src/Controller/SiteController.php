@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Form\NewsForm;
 use App\Form\NewsFormType;
 use App\Service\NewsServiceFactory;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,9 +20,18 @@ class SiteController extends AbstractController
     /** @var NewsServiceFactory */
     private $newsServiceFactory;
 
-    public function __construct(NewsServiceFactory $newsServiceFactory)
+    /** @var PaginatorInterface */
+    private $paginator;
+
+    /**
+     * SiteController constructor.
+     * @param NewsServiceFactory $newsServiceFactory
+     * @param PaginatorInterface $paginator
+     */
+    public function __construct(NewsServiceFactory $newsServiceFactory, PaginatorInterface $paginator)
     {
         $this->newsServiceFactory = $newsServiceFactory;
+        $this->paginator = $paginator;
     }
 
     /**
@@ -56,7 +66,6 @@ class SiteController extends AbstractController
         if (!$source = $request->query->get('source')) {
             return $this->redirectToRoute('site');
         }
-        // prepare and load Form
         $newsForm = new NewsForm();
         $newsForm->setSource($source);
         $form = $this->createForm(NewsFormType::class, $newsForm);
@@ -67,24 +76,15 @@ class SiteController extends AbstractController
             ]);
         }
 
-        //Prepare NewsService
         $newsService = $this->newsServiceFactory->create($source);
-        //Receive and parse news
         $allNews = $newsService->parse($newsService->receive());
 
-        // pagination
-        $news = [];
-        $pageSize = 5;
-        $page = ($page < count($allNews) / $pageSize) ? $page : 1;
-        for ($i = ($page - 1) * $pageSize; ($i < $pageSize * $page) && ($i < count($allNews)); $i++) {
-            $news[] = $allNews[$i];
-        }
+        $pagination = $this->paginator->paginate($allNews, $page, 5);
 
         return $this->render('site/news.html.twig', [
             'form' => $form->createView(),
-            'news' => $news,
             'page' => $page,
-            'maxPage' => count($allNews) / $pageSize,
+            'pagination' => $pagination,
         ]);
     }
 }

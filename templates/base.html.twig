@@ -8,15 +8,9 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-<style>
-    .example-wrapper {
-        margin: 1em auto;
-        max-width: 1000px;
-        width: 84%;
-        font: 18px/1.5 sans-serif;
-    }
-</style>
-{% block body %}{% endblock %}
-{% block javascripts %}{% endblock %}
+<div style="margin: 1em auto; max-width: 1000px; width: 84%; font: 18px/1.5 sans-serif;">
+    {% block body %}{% endblock %}
+    {% block javascripts %}{% endblock %}
+</div>
 </body>
 </html>
